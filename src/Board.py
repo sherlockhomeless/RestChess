@@ -1,3 +1,70 @@
+class PieceType:
+    def __init__(self, num_piece):
+        num_piece = abs(num_piece)
+        self.type = {
+            1: "P",
+            2: "T",
+            3: "KN",
+            4: "B",
+            5: "K",
+            6: "Q"
+        }
+        self.piece_type = self.type.get(num_piece)
+        self.movement_pattern = PieceType.get_movement_pattern(self.piece_type)
+
+    @staticmethod
+    def piece_type_to_number(num):
+        assert type(num) is int
+        pass
+
+    @staticmethod
+    def get_movement_pattern(piece_t):
+        moves = []
+
+        if piece_t == "P":
+            moves.append(lambda pos: [pos[0] + 1, pos[1]])
+            moves.append(lambda pos: [pos[0] + 2, pos[1]])
+
+        elif piece_t == "T":
+            for x in range(1, 8, 1):
+                moves.append(lambda pos: [pos[0] + x, pos[1]])
+                moves.append(lambda pos: [pos[0], pos[1] + 1])
+
+        elif piece_t == "KN":
+            moves.append(lambda pos: [pos[0] + 2, pos[1] - 1])
+            moves.append(lambda pos: [pos[0] + 2, pos[1] + 1])
+            moves.append(lambda pos: [pos[0] - 2, pos[1] - 1])
+            moves.append(lambda pos: [pos[0] - 2, pos[1] + 1])
+            moves.append(lambda pos: [pos[0] - 1, pos[1] + 2])
+            moves.append(lambda pos: [pos[0] + 1, pos[1] + 2])
+            moves.append(lambda pos: [pos[0] - 1, pos[1] - 2])
+            moves.append(lambda pos: [pos[0] + 1, pos[1] - 2])
+
+        elif piece_t == "B":
+            # can go into four directions
+            for y in range(8):
+                moves.append(lambda pos: [pos[0] + y, pos[1] + y])  # go up right
+                moves.append(lambda pos: [pos[0] + y, pos[1] - y])  # go up left
+                moves.append(lambda pos: [pos[0] - y, pos[1] + y])  # go down right
+                moves.append(lambda pos: [pos[0] - y, pos[1] - y])  # go down left
+
+        elif piece_t == "K":
+            moves.append(lambda pos: [pos[0] + 1, pos[1] - 1])  # left up
+            moves.append(lambda pos: [pos[0] + 1, pos[1]])  # middle up
+            moves.append(lambda pos: [pos[0] + 1, pos[1] + 1])  # right up
+            moves.append(lambda pos: [pos[0], pos[1] + 1])  # middle right
+            moves.append(lambda pos: [pos[0] - 1, pos[1] + 1])  # bottom right
+            moves.append(lambda pos: [pos[0] - 1, pos[1]])  # middle bottom
+            moves.append(lambda pos: [pos[0] - 1, pos[1] - 1])  # left bottom
+            moves.append(lambda pos: [pos[0], pos[1] - 1])  # middle left
+
+        elif piece_t == "Q":
+            moves =  PieceType.get_movement_pattern("T") + PieceType.get_movement_pattern("B")
+
+        else:
+            raise ValueError
+
+        return moves
 
 
 class Board:
@@ -48,27 +115,16 @@ class Board:
 
 
     def is_valid_move(self, src_i, dest_i, piece):
+        """
+        checks if a given move is valid
+        :param src_i: field from which piece should be moved in 'a1'-notation
+        :param dest_i: field to which piece should be moved in 'a1'-notation
+        :param piece: piece given as number of piece
+        :return: bool
+        """
+        src, dest = Board.map_chess_notation_to_index(src_i, dest_i)
 
-        class PieceTypes:
-            def __init__(self, num_piece):
-                num_piece = abs(num_piece)
-                self.type = {
-                    1: "P",
-                    2: "T",
-                    3: "KN",
-                    4: "B",
-                    5: "K",
-                    6: "Q"
-                }
-                self.piece_type = self.type.get(num_piece)
-                # TODO: Describe Moving Patterns non-shitty
-
-
-
-
-
-
-
+        assert self.board[src[0]][src[1]] == piece
 
     @staticmethod
     def map_chess_notation_to_index(*chess_notations):
